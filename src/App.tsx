@@ -5,11 +5,16 @@ import {
 	useSelect,
 	useStore,
 	useWatch,
-} from "@ctxlyr/react/use"
+} from "@ctxlyr/react/use" /* ctxlyr.ts */
 
 export const StoreLayer = () => {
+	/* Provide initial slice `context`
+	 * - initial slice selected with: Store.initial("Compose")
+	 * - `context` type defined with: $.Context<{ chatMessages: Array<Message>; threadTitle: string }>
+	 */
+
 	return (
-		<ChatLayer context={{ chatMessages: [] }}>
+		<ChatLayer context={{ chatMessages: [], threadTitle: "editable title" }}>
 			<main>
 				<ChatView />
 			</main>
@@ -18,13 +23,23 @@ export const StoreLayer = () => {
 }
 
 const ChatView: React.FC = () => {
-	const { context } = useStore(Chat)
-	const chatMessages = useWatch(context.chatMessages$)
+	// Provide `Chat` to access store props
+	const { context, action } = useStore(Chat)
+
+	/* Subscribe to value changes of selected observables
+	 * - accessible `context` observables: chatMessages$ | threadTitle$
+	 */
+	const ctx = useSelect(context, $("chatMessages", "threadTitle"))
 
 	return (
 		<div className="example-app">
+			<input
+				defaultValue={ctx.threadTitle}
+				onChange={(e) => action.updateTitle(e.target.value)}
+			/>
+			<div>{ctx.threadTitle}</div>
 			<ul>
-				{chatMessages.map((msg) => (
+				{ctx.chatMessages.map((msg) => (
 					<li key={msg}>{msg}</li>
 				))}
 			</ul>
@@ -34,8 +49,10 @@ const ChatView: React.FC = () => {
 }
 
 const MessageInput: React.FC = () => {
+	/* `slice$` can be any leaf slice path */
 	const { slice$ } = useStore(Chat)
-	const currentSlice = useWatch(slice$)
+
+	const currentSlice = useWatch(slice$) // "Compose" | "Generate.Stream" | "Generate.Error"
 
 	switch (currentSlice) {
 		case "Compose":
@@ -48,6 +65,9 @@ const MessageInput: React.FC = () => {
 }
 
 const ComposeView: React.FC = () => {
+	/* Scope slice to "Compose" to access slice specific store props
+	 * - `action` handlers scoped to: sendMessage | updateTitle
+	 */
 	const { action } = useStore(Chat, "Compose")
 
 	return (
@@ -67,9 +87,12 @@ const ComposeView: React.FC = () => {
 
 const StreamingView: React.FC = () => {
 	const { context } = useStore(Chat, "Generate.Stream")
-	const ctx = useSelect(context, $("responseBuffer"))
 
-	return <output>{ctx.responseBuffer}</output>
+	/* Subscribe to value changes of a single observable */
+	/* Direct access nested `context` observables */
+	const responseBuffer = useWatch(context.responseBuffer$)
+
+	return <output>{responseBuffer}</output>
 }
 
 const ErrorView: React.FC = () => {
