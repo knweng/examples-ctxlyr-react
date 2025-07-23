@@ -1,10 +1,10 @@
 import {
-	$,
-	Chat,
-	ChatLayer,
-	useSelect,
-	useStore,
-	useWatch,
+	$, // utility for bulk observable selection
+	Chat, // from: ./chat/store.ts
+	ChatLayer, // from: ./chat/store.ts
+	useSelect, // subscribe to multiple observables
+	useStore, // access store context & actions
+	useWatch, // subscribe to single observable
 } from "@ctxlyr/react/use" /* ctxlyr.ts */
 
 export const StoreLayer = () => {

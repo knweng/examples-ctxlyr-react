@@ -8,18 +8,18 @@ Basic usage with text streaming and error handling.
 
 </div>
 
-| Src File        | Description|
-| --------------- | ----------- |
-| `chat/model.ts` | TypeScript type definitions for chat state model using @ctxlyr/react with slices for Compose and Generate states |
-| `chat/store.ts` | Main chat store implementation with actions for sending messages, streaming responses, and error handling |
-| `ctxlyr.ts`     | Re-exports @ctxlyr/react hooks and chat store components for easy importing |
-| `App.tsx`       | React components for chat UI including message list, input form, streaming view, and error handling |
+| Src File        | Description                                                                     |
+| --------------- | ------------------------------------------------------------------------------- |
+| `chat/model.ts` | Models the app state tree with utility `type $`                                 |
+| `chat/store.ts` | Runtime: Builds an exhaustive action reducer with the type from `chat/model.ts` |
+| `ctxlyr.ts`     | Exports ctxlyr hooks and declared stores for import alias `"@ctxlyr/react/use"` |
+| `App.tsx`       | Uses hooks from "@ctxlyr/react/use": `useStore`, `useWatch`, `useSelect`, `$`   |
 
-| TSX Component| Description|
-| --------------- | ----------- |
-| `StoreLayer` | Root component that provides ChatLayer context with initial chat messages array |
-| `ChatView` | Displays chat messages list and renders MessageInput component |
-| `MessageInput` | Route component that renders different views based on current chat slice state |
-| `ComposeView` | Form component for composing and sending new messages |
-| `StreamingView` | Displays real-time streaming response buffer during message generation |
-| `ErrorView` | Error handling component with retry/reset actions and response buffer display |
+| TSX Component   | Description                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `StoreLayer`    | Initializes the store-specific bounded context required by `useStore`                           |
+| `ChatView`      | Combines `useSelect` with `$()` utility to subscribe to multiple observables in one declaration |
+| `MessageInput`  | Demonstrates `useWatch` on `slice$` observable for component routing based on current state     |
+| `ComposeView`   | Shows slice-scoped `useStore(Chat, "Compose")` returning only relevant `action` handlers        |
+| `StreamingView` | Accesses deeply nested observables, like `context.responseBuffer$`, for fine-grain reactivity   |
+| `ErrorView`     | Error recovery with slice-specific actions `retry` and `reset`                                  |
