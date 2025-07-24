@@ -23,3 +23,15 @@ Basic usage with text streaming and error handling.
 | `ComposeView`   | Shows slice-scoped `useStore(Chat, "Compose")` returning only relevant `action` handlers        |
 | `StreamingView` | Accesses deeply nested observables, like `context.responseBuffer$`, for fine-grain reactivity   |
 | `ErrorView`     | Error recovery with slice-specific actions `retry` and `reset`                                  |
+
+## Store Transitions
+
+### Chat
+
+| Current Slice       | Target Slice        | Action        |
+| ------------------- | ------------------- | ------------- |
+| `"Compose"`         | `"Generate.Stream"` | `sendMessage` |
+| `"Generate.Stream"` | `"Compose"`         | `onEntry`     |
+| `"Generate.Stream"` | `"Generate.Error"`  | `onEntry`     |
+| `"Generate.Error"`  | `"Generate.Stream"` | `retry`       |
+| `"Generate.Error"`  | `"Compose"`         | `reset`       |
